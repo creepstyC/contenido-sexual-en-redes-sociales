@@ -1,0 +1,21 @@
+---
+title: "Contenido sexual en redes sociales"
+author: "Grupo A"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: journal
+    toc: yes
+    toc_float:
+      collapsed: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Colaboradores
+Marlon Barajas Acelas - 2202042
+Jose Gabriel Tomas Zapata - 
+
+# Tratamiento y exploración de datos

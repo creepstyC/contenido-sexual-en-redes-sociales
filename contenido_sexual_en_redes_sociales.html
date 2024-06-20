@@ -1504,7 +1504,19 @@ font-size: 0.95em;
 </div>
 
 
-
+<div id="colaboradores" class="section level1">
+<h1>Colaboradores</h1>
+<p>Marlon Barajas Acelas - 2202042 Jose Gabriel Tomas Zapata -</p>
+</div>
+<div id="análisis-de-datos" class="section level1">
+<h1>Análisis de datos</h1>
+<pre class="r"><code>df &lt;- read.csv(&#39;./contenido_sexual_en_redes_sociales.csv&#39;)</code></pre>
+<p>Asignación de nombres a las columnas</p>
+<pre class="r"><code>names(df) &lt;- c(&#39;time&#39;, &#39;sex&#39;, &#39;age&#39;, &#39;faculty&#39;, &#39;social_networks&#39;, &#39;grooming_victim&#39;, &#39;sexual_experience&#39;, &#39;sent_nudes&#39;, &#39;sent_nudes_to_stranger&#39;, &#39;sent_nudes_without_request&#39;, &#39;starts_sending&#39;, &#39;view_once&#39;, &#39;allows_recording&#39;, &#39;shows_face&#39;, &#39;tries_not_to_be_identified&#39;, &#39;media_format&#39;, &#39;friends_share_nudes&#39;, &#39;asks_friends_share_nudes&#39;, &#39;shared_nudes&#39;, &#39;shares_nudes_frequently&#39;, &#39;sent_nudes_to_groups&#39;, &#39;sold_nudes&#39;, &#39;published_nudes&#39;, &#39;bought_nudes&#39;)</code></pre>
+<p>Se elimina la columna de tiempo, que es innecesaria para el
+estudio</p>
+<pre class="r"><code>df &lt;- df[, !(names(df) %in% c(&#39;time&#39;))]</code></pre>
+</div>
 
 
 

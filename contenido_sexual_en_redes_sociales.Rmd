@@ -10,6 +10,7 @@ output:
       collapsed: false
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -18,4 +19,18 @@ knitr::opts_chunk$set(echo = TRUE)
 Marlon Barajas Acelas - 2202042
 Jose Gabriel Tomas Zapata - 
 
-# Tratamiento y exploración de datos
+# Análisis de datos
+```{r}
+df <- read.csv('./contenido_sexual_en_redes_sociales.csv')
+```
+
+Asignación de nombres a las columnas
+```{r}
+names(df) <- c('time', 'sex', 'age', 'faculty', 'social_networks', 'grooming_victim', 'sexual_experience', 'sent_nudes', 'sent_nudes_to_stranger', 'sent_nudes_without_request', 'starts_sending', 'view_once', 'allows_recording', 'shows_face', 'tries_not_to_be_identified', 'media_format', 'friends_share_nudes', 'asks_friends_share_nudes', 'shared_nudes', 'shares_nudes_frequently', 'sent_nudes_to_groups', 'sold_nudes', 'published_nudes', 'bought_nudes')
+```
+
+Se elimina la columna de tiempo, que es innecesaria para el estudio
+```{r}
+df <- df[, !(names(df) %in% c('time'))]
+```
+

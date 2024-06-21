@@ -7,29 +7,62 @@ output:
     theme: journal
     toc: yes
     toc_float:
-      collapsed: false
+      collapsed: true
 ---
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
-```{r}
+```{r echo=TRUE, include=FALSE}
 library(tidyr)
 library(dplyr)
 library(corrplot)
 library(ggplot2)
 ```
 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 # Colaboradores
-Marlon Barajas Acelas - 2202042
-Jose Gabriel Tomas Zapata - 
+
+Marlon Barajas Acelas - 2202042  
+Jose Gabriel Tomas Zapata - 2201779
+
+# Introducción
+
+En la era digital actual, el uso de las redes sociales ha revolucionado la manera en que las personas se comunican, interactúan y comparten información personal. Una de las manifestaciones más controvertidas de este fenómeno es la práctica de compartir contenidos sexuales explícitos o desnudos a través de plataformas en línea. Este comportamiento plantea importantes interrogantes sobre cómo las diferencias de género y las experiencias personales influyen en la disposición de individuos para participar en estas prácticas.
+
+El presente proyecto de estadística tiene como objetivo investigar específicamente dos hipótesis principales relacionadas con el comportamiento de compartir desnudos en redes sociales.
+
+# Objetivos
+
+* Evaluar la diferencia de género en la disposición a compartir contenidos sexuales en redes sociales.
+
+* Analizar la influencia de la experiencia sexual en el comportamiento de compartir desnudos.
+
+* Validar estadísticamente las hipótesis.
+
+# Metodología de la encuesta
+
+El cuestionario se diseñaró de manera que todas las preguntas estén claramente formuladas y sean comprensibles para los encuestados. Las preguntas deben estar organizadas de manera lógica y secuencial, comenzando por información demográfica básica antes de abordar preguntas más sensibles.
+
+Se seleccionará una muestra representativa de la población objetivo, que puede ser estudiantes universitarios de diferentes facultades.
+Es importante considerar la representación equitativa de género y grupos de edad dentro de la muestra para asegurar resultados más generalizables.
+Aplicación de la Encuesta:
+
+La encuesta puede ser administrada de forma presencial o en línea, dependiendo de la accesibilidad y preferencias de los encuestados.
+Se debe asegurar la confidencialidad y anonimato de las respuestas para fomentar la sinceridad y reducir el sesgo.
+Recopilación de Datos:
+
+Se recolectarán datos sobre variables como sexo, edad, facultad, redes sociales utilizadas y experiencias relacionadas con el envío y recepción de desnudos.
+Las respuestas a preguntas sensibles como las relacionadas con el grooming, prácticas sexuales, y comportamientos de envío de desnudos serán anónimas y tratadas con cuidado ético.
 
 # Análisis de datos
+
+## Tratamiento del dataset
+
 ```{r}
 df <- read.csv('./contenido_sexual_en_redes_sociales.csv')
 ```
 
-## Tratamiento del dataset
 ```{r}
 df <- df[, !names(df) %in% 'Marca.temporal']
 df <- df[, !names(df) %in% 'A.que.facultad.pertenece.']
@@ -40,6 +73,7 @@ names(df) <- c('sex', 'age', 'social_networks', 'grooming_victim', 'sexual_exper
 ```
 
 ### División de las columnas de 'social_networks' y 'media_format'
+
 ```{r}
 redes_sociales <- c("Facebook", "Instagram", "Twitter", "Telegram", "Discord", "WhatsApp")
 
@@ -62,6 +96,7 @@ df <- df[, !names(df) %in% "media_format"]
 ```
 
 ### Conversión de valores de texto a binarios (No=0 y Si=1)
+
 ```{r}
 df[is.na(df)] <- 0
 df[df == ''] <- 0
@@ -82,17 +117,26 @@ df <- as.data.frame(lapply(df, function(x) {
 df <- mutate_all(df, as.numeric)
 ```
 
-Eliminando columnas con valores constantes  
+Eliminando columnas con valores constantes
+
 ```{r}
 df <- df[, !names(df) %in% 'shares_nudes_frequently']
 df <- df[, !names(df) %in% 'sold_nudes']
 df <- df[, !names(df) %in% 'published_nudes']
 ```
+
 Ninguna de las personas encuestadas, comparte, vende o publica desnudos de otras personas.
 
-## Graficando datos
+## Exploración de resultados
+
+### Medidas estadísticas básicas para el dataset
+
+```{r}
+summary.data.frame(df)
+```
 
 ### Frecuencia de algunas respuestas
+
 ```{r echo=FALSE}
 ggplot(df, aes(x = factor(sex))) +
   geom_bar(fill = "coral4", color = "black") +
@@ -101,6 +145,7 @@ ggplot(df, aes(x = factor(sex))) +
        y = "Frecuencia") +
   scale_x_discrete(labels = c("0" = "Hombre", "1" = "Mujer"))
 ```
+
 ```{r echo=FALSE}
 ggplot(df, aes(x = factor(age))) +
   geom_bar(fill = "coral4", color = "black") +
@@ -118,6 +163,16 @@ ggplot(df, aes(x = factor(sexual_experience))) +
        y = "Frecuencia") +
   scale_x_discrete(labels = c("0" = "No", "1" = "Si"))
 ```
+
+```{r echo=FALSE}
+ggplot(df, aes(x = factor(grooming_victim))) +
+  geom_bar(fill = "coral4", color = "black") +
+  labs(title = "Encuestados victimas de grooming",
+       x = "",
+       y = "Frecuencia") +
+  scale_x_discrete(labels = c("0" = "No", "1" = "Si"))
+```
+
 ```{r echo=FALSE}
 facebook_count <- sum(df$facebook)
 instagram_count <- sum(df$instagram)
@@ -137,6 +192,7 @@ barplot(freq,
         border = "black",
         ylim = c(0, max(freq) + 10))
 ```
+
 ```{r echo=FALSE}
 fotos_count <- sum(df$fotos)
 videos_count <- sum(df$videos)
@@ -147,13 +203,15 @@ freq <- c(fotos_count, videos_count, shorts_count, gifs_count)
 
 barplot(freq, 
         names.arg = formatos,
-        main = "Formatos usados",
+        main = "Formatos usados para compartir contenido",
         xlab = "Formato",
         ylab = "Frecuencia",
         col = "coral4",
         border = "black",
         ylim = c(0, max(freq) + 10))
 ```
+
+### Matriz de correlación para todas las variables
 ```{r echo=FALSE}
 corrplot(cor(df),
          method = "shade",
@@ -163,6 +221,58 @@ corrplot(cor(df),
          bg = "white",
          col = NULL)
 ```
+
+# Formulación de hipótesis
+
+Basado en los resultados de las gráficas y las medidas estadísticas básicas para los datos generados, se plantearon las siguientes hipótesis:
+
+1. El género puede determinar si una persona es más propensa a compartir contenído, específicamente los hombres.
+
+2. Las personas que han tenido experiencias sexuales, tienden a compartir contenido con más facilidad.
+
+# Pruebas estadísticas
+
+## Primera hipótesis
+
+Se plantea la hipótesis nula como la contraria a la planteada para tratar de rechazarla y así comprobar que el género influye en el envío de desnudos.
+
+$H_0:$ El género no determina si una persona es más propensa a compartir contenído.
+
+se genera una tabla con los valores necesarios para la prueba:
+
+```{r}
+tabla <- table(df$sex, df$sent_nudes)
+print(tabla)
+```
+
+se calcularon las frecuencias esperadas:
+
+```{r}
+total_sex <- margin.table(tabla, 1)
+total_sent_nudes <- margin.table(tabla, 2)
+total_general <- sum(tabla)
+frecuencias_esperadas <- outer(total_sex, total_sent_nudes) / total_general
+print(frecuencias_esperadas)
+```
+
+se calculó consecuentemente el estadístico chi-cuadrado:
+
+```{r}
+chi_squared_stat <- sum((tabla - frecuencias_esperadas)^2 / frecuencias_esperadas)
+print(chi_squared_stat)
+```
+
+se obtuvo el valor crítico de la distribución chi_cuadrado:
+
+```{r}
+df <- (nrow(tabla) - 1) * (ncol(tabla) - 1)
+alpha <- 0.05
+critical_value <- qchisq(1 - alpha, df)
+print(critical_value)
+```
+comparación del stadístico calculado con el valor crítico obtenido:
+
+como el valor del estadístico chi-cuadrado calculado es mayor que el valor crítico, no hay evidencia suficiente para rechazar la hipótesis nula. Por lo tanto el género no parece influír en la propensión a compartir contenido de este tipo.
 
 
 

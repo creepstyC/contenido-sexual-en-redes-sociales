@@ -9,10 +9,15 @@ output:
     toc_float:
       collapsed: false
 ---
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyr)
+library(dplyr)
+library(corrplot)
+library(ggplot2)
 ```
 
 # Colaboradores
@@ -24,13 +29,152 @@ Jose Gabriel Tomas Zapata -
 df <- read.csv('./contenido_sexual_en_redes_sociales.csv')
 ```
 
-Asignación de nombres a las columnas
+## Tratamiento del dataset
 ```{r}
-names(df) <- c('time', 'sex', 'age', 'faculty', 'social_networks', 'grooming_victim', 'sexual_experience', 'sent_nudes', 'sent_nudes_to_stranger', 'sent_nudes_without_request', 'starts_sending', 'view_once', 'allows_recording', 'shows_face', 'tries_not_to_be_identified', 'media_format', 'friends_share_nudes', 'asks_friends_share_nudes', 'shared_nudes', 'shares_nudes_frequently', 'sent_nudes_to_groups', 'sold_nudes', 'published_nudes', 'bought_nudes')
+df <- df[, !names(df) %in% 'Marca.temporal']
+df <- df[, !names(df) %in% 'A.que.facultad.pertenece.']
 ```
 
-Se elimina la columna de tiempo, que es innecesaria para el estudio
 ```{r}
-df <- df[, !(names(df) %in% c('time'))]
+names(df) <- c('sex', 'age', 'social_networks', 'grooming_victim', 'sexual_experience', 'sent_nudes', 'sent_nudes_to_stranger', 'sent_nudes_without_request', 'starts_sending', 'view_once', 'allows_recording', 'shows_face', 'tries_not_to_be_identified', 'media_format', 'friends_share_nudes', 'asks_friends_share_nudes', 'shared_nudes', 'shares_nudes_frequently', 'sent_nudes_to_groups', 'sold_nudes', 'published_nudes', 'bought_nudes')
 ```
+
+### División de las columnas de 'social_networks' y 'media_format'
+```{r}
+redes_sociales <- c("Facebook", "Instagram", "Twitter", "Telegram", "Discord", "WhatsApp")
+
+for (red_social in redes_sociales) {
+  df[[tolower(red_social)]] <- ifelse(grepl(red_social, df$social_networks, ignore.case = TRUE), 1, 0)
+}
+
+df <- df[, !names(df) %in% "social_networks"]
+```
+
+```{r}
+formatos <- c("Fotos", "Videos", "Shorts", "Gifs")
+
+for (formato in formatos) {
+  df[[tolower(formato)]] <- ifelse(grepl(formato, df$media_format,
+ignore.case = TRUE), 1, 0)
+}
+
+df <- df[, !names(df) %in% "media_format"]
+```
+
+### Conversión de valores de texto a binarios (No=0 y Si=1)
+```{r}
+df[is.na(df)] <- 0
+df[df == ''] <- 0
+
+df$sex <- ifelse(df$sex == 'Hombre', 0, ifelse(df$sex == 'Mujer', 1, df$sex))
+```
+
+```{r}
+df <- as.data.frame(lapply(df, function(x) {
+  if (is.character(x)) {
+    x <- ifelse(x == 'Si', 1, ifelse(x == 'No', 0, x))
+  }
+  return(x)
+}))
+```
+
+```{r echo=FALSE}
+df <- mutate_all(df, as.numeric)
+```
+
+Eliminando columnas con valores constantes  
+```{r}
+df <- df[, !names(df) %in% 'shares_nudes_frequently']
+df <- df[, !names(df) %in% 'sold_nudes']
+df <- df[, !names(df) %in% 'published_nudes']
+```
+Ninguna de las personas encuestadas, comparte, vende o publica desnudos de otras personas.
+
+## Graficando datos
+
+### Frecuencia de algunas respuestas
+```{r echo=FALSE}
+ggplot(df, aes(x = factor(sex))) +
+  geom_bar(fill = "coral4", color = "black") +
+  labs(title = "Genero de los encuestados",
+       x = "",
+       y = "Frecuencia") +
+  scale_x_discrete(labels = c("0" = "Hombre", "1" = "Mujer"))
+```
+```{r echo=FALSE}
+ggplot(df, aes(x = factor(age))) +
+  geom_bar(fill = "coral4", color = "black") +
+  labs(title = "Edades de los encuestados",
+       x = "Edad (<=)",
+       y = "Frecuencia") +
+  theme_minimal()
+```
+
+```{r echo=FALSE}
+ggplot(df, aes(x = factor(sexual_experience))) +
+  geom_bar(fill = "coral4", color = "black") +
+  labs(title = "Encuestados con experiencias sexuales",
+       x = "",
+       y = "Frecuencia") +
+  scale_x_discrete(labels = c("0" = "No", "1" = "Si"))
+```
+```{r echo=FALSE}
+facebook_count <- sum(df$facebook)
+instagram_count <- sum(df$instagram)
+twitter_count <- sum(df$twitter)
+telegram_count <- sum(df$telegram)
+discord_count <- sum(df$discord)
+whatsapp_count <- sum(df$whatsapp)
+
+freq <- c(facebook_count, instagram_count, twitter_count, telegram_count, discord_count, whatsapp_count)
+
+barplot(freq, 
+        names.arg = redes_sociales,
+        main = "Frecuencia de Uso de Redes Sociales",
+        xlab = "Redes Sociales",
+        ylab = "Frecuencia",
+        col = "coral4",
+        border = "black",
+        ylim = c(0, max(freq) + 10))
+```
+```{r echo=FALSE}
+fotos_count <- sum(df$fotos)
+videos_count <- sum(df$videos)
+shorts_count <- sum(df$shorts)
+gifs_count <- sum(df$gifs)
+
+freq <- c(fotos_count, videos_count, shorts_count, gifs_count)
+
+barplot(freq, 
+        names.arg = formatos,
+        main = "Formatos usados",
+        xlab = "Formato",
+        ylab = "Frecuencia",
+        col = "coral4",
+        border = "black",
+        ylim = c(0, max(freq) + 10))
+```
+```{r echo=FALSE}
+corrplot(cor(df),
+         method = "shade",
+         type = "full",
+         diag = TRUE,
+         tl.col = "black",
+         bg = "white",
+         col = NULL)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
